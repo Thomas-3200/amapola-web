@@ -47,7 +47,7 @@ export default function HeroBanner() {
         }}>
           El arte de llevarte bien.
         </h1>
-        <a href="#coleccion" className="btn-pill-white" style={{ fontSize: "0.72rem" }}>
+        <a href="/catalogo" className="btn-pill-white" style={{ fontSize: "0.72rem" }}>
           Descubrir la Colección
         </a>
       </div>

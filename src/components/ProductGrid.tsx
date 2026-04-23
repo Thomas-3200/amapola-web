@@ -22,9 +22,14 @@ function ProductCard({ p }: { p: typeof products[0] }) {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
 
+  const waHref = `https://wa.me/5491166676467?text=${encodeURIComponent(`Hola Amapola! Me interesa "${p.name}" (${fmt(p.price)})`)}`;
+
   return (
-    <div
-      style={{ cursor: "pointer" }}
+    <a
+      href={waHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ cursor: "pointer", textDecoration: "none", color: "inherit", display: "block" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -39,17 +44,18 @@ function ProductCard({ p }: { p: typeof products[0] }) {
         />
         {/* Heart icon — top right like LV */}
         <button
-          onClick={() => setLiked(!liked)}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(!liked); }}
           style={{
             position: "absolute", top: "0.75rem", right: "0.75rem",
-            background: "none", border: "none", cursor: "pointer", padding: "0.3rem",
-            opacity: hovered ? 1 : 0,
+            background: "rgba(255,255,255,0.8)", borderRadius: "50%",
+            border: "none", cursor: "pointer", padding: "0.4rem",
+            opacity: hovered || liked ? 1 : 0.6,
             transition: "opacity 0.2s ease",
           }}
           aria-label="Guardar"
         >
           <Heart
-            size={18}
+            size={16}
             strokeWidth={1.5}
             color={liked ? "#c00" : "var(--text)"}
             fill={liked ? "#c00" : "none"}
@@ -78,7 +84,7 @@ function ProductCard({ p }: { p: typeof products[0] }) {
           {fmt(p.price)}
         </p>
       </div>
-    </div>
+    </a>
   );
 }
 
