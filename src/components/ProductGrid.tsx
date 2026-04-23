@@ -1,53 +1,67 @@
 "use client";
 
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag, Check } from "lucide-react";
 import { useState } from "react";
+import { useCart, fmtARS } from "@/lib/cart";
 
-const products = [
-  { name: "Riñonera Amapola Bordo", price: 19000, category: "Riñoneras", image: "/images/products/IMG_4627.jpg" },
-  { name: "Oreiro Love — Vino", price: 15000, category: "Billeteras", image: "/images/products/IMG_4653.jpg" },
-  { name: "Chimola Vino", price: 28000, category: "Billeteras", image: "/images/products/IMG_4660.jpg" },
-  { name: "Chimola Camel", price: 28000, category: "Billeteras", image: "/images/products/IMG_4658.jpg" },
-  { name: "ch/ml Gris", price: 12000, category: "Billeteras Compactas", image: "/images/products/IMG_4673.jpg" },
-  { name: "Barbara Crossbody Beige", price: 35000, category: "Crossbody", image: "/images/products/IMG_4666.jpg" },
-  { name: "The Tote Bag — Caramelo", price: 52000, category: "Tote Bags", image: "/images/products/IMG_4677.jpg" },
-  { name: "Cartera Cuero Negro", price: 45000, category: "Carteras", image: "/images/products/IMG_4691.jpg" },
+type Product = {
+  codigo: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;   // filename only (e.g. IMG_4627.jpg)
+};
+
+const products: Product[] = [
+  { codigo: "AMP-001", name: "Riñonera Amapola Bordo",   price: 19000, category: "Riñoneras",           image: "IMG_4627.jpg" },
+  { codigo: "AMP-002", name: "Oreiro Love — Vino",        price: 15000, category: "Billeteras",          image: "IMG_4653.jpg" },
+  { codigo: "AMP-003", name: "Chimola Vino",              price: 28000, category: "Billeteras",          image: "IMG_4660.jpg" },
+  { codigo: "AMP-004", name: "Chimola Camel",             price: 28000, category: "Billeteras",          image: "IMG_4658.jpg" },
+  { codigo: "AMP-005", name: "ch/ml Gris",                price: 12000, category: "Billeteras Compactas", image: "IMG_4673.jpg" },
+  { codigo: "AMP-006", name: "Barbara Crossbody Beige",   price: 35000, category: "Crossbody",           image: "IMG_4666.jpg" },
+  { codigo: "AMP-007", name: "The Tote Bag — Caramelo",   price: 52000, category: "Tote Bags",           image: "IMG_4677.jpg" },
+  { codigo: "AMP-008", name: "Cartera Cuero Negro",       price: 45000, category: "Carteras",            image: "IMG_4691.jpg" },
 ];
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
-
-function ProductCard({ p }: { p: typeof products[0] }) {
+function ProductCard({ p }: { p: Product }) {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
-  const waHref = `https://wa.me/5491166676467?text=${encodeURIComponent(`Hola Amapola! Me interesa "${p.name}" (${fmt(p.price)})`)}`;
+  const handleAdd = () => {
+    addItem({
+      codigo: p.codigo,
+      nombre: p.name,
+      precio: p.price,
+      imagen: p.image,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
 
   return (
-    <a
-      href={waHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{ cursor: "pointer", textDecoration: "none", color: "inherit", display: "block" }}
+    <div
+      style={{ display: "block" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image */}
       <div style={{ position: "relative", aspectRatio: "3/4", overflow: "hidden", backgroundColor: "var(--bg-card)" }}>
         <Image
-          src={p.image}
+          src={`/images/products/${p.image}`}
           alt={p.name}
           fill
           style={{ objectFit: "cover", transition: "transform 0.5s cubic-bezier(0.25,0.1,0.25,1)", transform: hovered ? "scale(1.04)" : "scale(1)" }}
           sizes="(max-width: 768px) 50vw, 25vw"
         />
-        {/* Heart icon — top right like LV */}
+        {/* Like */}
         <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLiked(!liked); }}
+          onClick={() => setLiked(!liked)}
           style={{
             position: "absolute", top: "0.75rem", right: "0.75rem",
-            background: "rgba(255,255,255,0.8)", borderRadius: "50%",
+            background: "rgba(255,255,255,0.85)", borderRadius: "50%",
             border: "none", cursor: "pointer", padding: "0.4rem",
             opacity: hovered || liked ? 1 : 0.6,
             transition: "opacity 0.2s ease",
@@ -61,13 +75,52 @@ function ProductCard({ p }: { p: typeof products[0] }) {
             fill={liked ? "#c00" : "none"}
           />
         </button>
+
+        {/* Quick-add overlay on hover (desktop) */}
+        <button
+          onClick={handleAdd}
+          aria-label={`Agregar ${p.name} al carrito`}
+          className="lv-quick-add"
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: "0.85rem",
+            transform: `translateX(-50%) translateY(${hovered || added ? "0" : "8px"})`,
+            opacity: hovered || added ? 1 : 0,
+            transition: "opacity 0.25s ease, transform 0.25s ease",
+            background: added ? "#1a6d3a" : "var(--text)",
+            color: "var(--white)",
+            border: "none",
+            cursor: "pointer",
+            padding: "0.6rem 1.1rem",
+            borderRadius: 999,
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.7rem",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.45rem",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {added ? (
+            <>
+              <Check size={14} strokeWidth={2} /> Agregado
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={14} strokeWidth={1.6} /> Agregar al carrito
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Caption — LV style: name then price, no border, clean */}
+      {/* Caption */}
       <div style={{ padding: "0.85rem 0.25rem 1.25rem" }}>
         <p style={{
           fontFamily: "var(--font-sans)",
-          fontSize: "0.75rem",
+          fontSize: "0.78rem",
           fontWeight: 400,
           color: "var(--text)",
           marginBottom: "0.3rem",
@@ -77,14 +130,50 @@ function ProductCard({ p }: { p: typeof products[0] }) {
         </p>
         <p style={{
           fontFamily: "var(--font-sans)",
-          fontSize: "0.72rem",
+          fontSize: "0.74rem",
           fontWeight: 400,
           color: "var(--text-light)",
+          marginBottom: "0.6rem",
         }}>
-          {fmt(p.price)}
+          {fmtARS(p.price)}
         </p>
+
+        {/* Mobile-visible Add to cart (since hover doesn't exist on touch) */}
+        <button
+          onClick={handleAdd}
+          className="lv-add-mobile"
+          aria-label={`Agregar ${p.name} al carrito`}
+          style={{
+            display: "none",
+            width: "100%",
+            background: added ? "#1a6d3a" : "transparent",
+            color: added ? "var(--white)" : "var(--text)",
+            border: `1px solid ${added ? "#1a6d3a" : "var(--text)"}`,
+            cursor: "pointer",
+            padding: "0.55rem 0.8rem",
+            borderRadius: 999,
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.68rem",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.4rem",
+            transition: "background 0.2s ease, color 0.2s ease",
+          }}
+        >
+          {added ? (
+            <>
+              <Check size={13} strokeWidth={2} /> Agregado
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={13} strokeWidth={1.6} /> Agregar
+            </>
+          )}
+        </button>
       </div>
-    </a>
+    </div>
   );
 }
 
@@ -125,7 +214,7 @@ export default function ProductGrid() {
         gridTemplateColumns: "repeat(4, 1fr)",
         gap: "1rem 1.5rem",
       }} className="prod-grid">
-        {products.map((p, i) => <ProductCard key={i} p={p} />)}
+        {products.map((p) => <ProductCard key={p.codigo} p={p} />)}
       </div>
 
       {/* LV-style centered pill CTA */}
@@ -138,6 +227,10 @@ export default function ProductGrid() {
       <style>{`
         @media (max-width: 900px) { .prod-grid { grid-template-columns: repeat(3,1fr) !important; } }
         @media (max-width: 640px) { .prod-grid { grid-template-columns: repeat(2,1fr) !important; } }
+        @media (hover: none), (max-width: 768px) {
+          .lv-quick-add { display: none !important; }
+          .lv-add-mobile { display: inline-flex !important; }
+        }
       `}</style>
     </section>
   );

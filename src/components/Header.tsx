@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Menu, X, Heart, MessageCircle } from "lucide-react";
+import { Search, Menu, X, Heart, MessageCircle, ShoppingBag } from "lucide-react";
+import { useCart } from "@/lib/cart";
 
 const navLeft = [
   { label: "Catálogo", href: "/catalogo" },
@@ -22,6 +23,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { count, openCart } = useCart();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -222,7 +224,7 @@ export default function Header() {
             <MessageCircle size={18} strokeWidth={1.5} color="var(--text)" />
           </a>
 
-          {/* Instagram / Favorites icon */}
+          {/* Instagram */}
           <a
             href={INSTAGRAM_URL}
             target="_blank"
@@ -238,6 +240,46 @@ export default function Header() {
           >
             <Heart size={18} strokeWidth={1.5} color="var(--text)" />
           </a>
+
+          {/* Cart button with badge */}
+          <button
+            onClick={openCart}
+            aria-label={`Carrito (${count})`}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              padding: "0.35rem",
+              position: "relative",
+            }}
+          >
+            <ShoppingBag size={18} strokeWidth={1.5} color="var(--text)" />
+            {count > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-2px",
+                  right: "-4px",
+                  background: "var(--text)",
+                  color: "var(--white)",
+                  borderRadius: "999px",
+                  fontSize: "0.6rem",
+                  fontWeight: 600,
+                  fontFamily: "var(--font-sans)",
+                  minWidth: 16,
+                  height: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 4px",
+                  lineHeight: 1,
+                }}
+              >
+                {count}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 

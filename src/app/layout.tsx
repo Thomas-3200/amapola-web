@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { EB_Garamond, Raleway } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "@/lib/cart";
+import CartDrawer from "@/components/CartDrawer";
 
 const ebGaramond = EB_Garamond({
   subsets: ["latin"],
@@ -34,7 +36,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${ebGaramond.variable} ${raleway.variable}`}>
-      <body>{children}</body>
+      <body>
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
+      </body>
     </html>
   );
 }
