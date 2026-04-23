@@ -18,7 +18,7 @@ const PRODUCTS = [
   foto: `${img}.jpg`,
 }));
 
-type ProductData = { precio: string; descripcion: string };
+type ProductData = { precio: string; descripcion: string; stock: string };
 type DataMap = Record<string, ProductData>;
 
 const STORAGE_KEY = "amapola_carga_v1";
@@ -53,14 +53,14 @@ export default function CargaPage() {
   }, [data, index]);
 
   const current = PRODUCTS[index];
-  const currentData = data[current.codigo] || { precio: "", descripcion: "" };
+  const currentData = data[current.codigo] || { precio: "", descripcion: "", stock: "" };
 
   const completedCount = useMemo(
-    () => Object.values(data).filter((d) => d.precio.trim() && d.descripcion.trim()).length,
+    () => Object.values(data).filter((d) => d.precio.trim() && d.descripcion.trim() && d.stock.trim()).length,
     [data]
   );
 
-  function updateField(field: "precio" | "descripcion", value: string) {
+  function updateField(field: "precio" | "descripcion" | "stock", value: string) {
     setData((d) => ({
       ...d,
       [current.codigo]: { ...currentData, [field]: value },
@@ -79,12 +79,13 @@ export default function CargaPage() {
 
   // Build CSV text
   function buildCSV() {
-    const header = "codigo,foto,precio_ars,descripcion_corta";
+    const header = "codigo,foto,precio_ars,stock,descripcion_corta";
     const rows = PRODUCTS.map((p) => {
-      const d = data[p.codigo] || { precio: "", descripcion: "" };
+      const d = data[p.codigo] || { precio: "", descripcion: "", stock: "" };
       const precio = d.precio.replace(/[^\d]/g, "");
+      const stock = d.stock.replace(/[^\d]/g, "");
       const desc = `"${d.descripcion.replace(/"/g, '""')}"`;
-      return `${p.codigo},${p.foto},${precio},${desc}`;
+      return `${p.codigo},${p.foto},${precio},${stock},${desc}`;
     });
     return [header, ...rows].join("\n");
   }
@@ -93,9 +94,10 @@ export default function CargaPage() {
     const lines = [`Catálogo Amapola — completado por Paola`, ``, `Total productos cargados: ${completedCount} de ${PRODUCTS.length}`, ``, `---`, ``];
     PRODUCTS.forEach((p) => {
       const d = data[p.codigo];
-      if (d && (d.precio || d.descripcion)) {
+      if (d && (d.precio || d.descripcion || d.stock)) {
         lines.push(`${p.codigo} (${p.foto})`);
         if (d.precio) lines.push(`  Precio: $${d.precio}`);
+        if (d.stock) lines.push(`  Stock: ${d.stock} unidades`);
         if (d.descripcion) lines.push(`  Descripción: ${d.descripcion}`);
         lines.push(``);
       }
@@ -153,8 +155,8 @@ export default function CargaPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "2rem" }}>
             {PRODUCTS.map((p, i) => {
               const d = data[p.codigo];
-              const complete = d?.precio?.trim() && d?.descripcion?.trim();
-              const partial = d && (d.precio?.trim() || d.descripcion?.trim()) && !complete;
+              const complete = d?.precio?.trim() && d?.descripcion?.trim() && d?.stock?.trim();
+              const partial = d && (d.precio?.trim() || d.descripcion?.trim() || d.stock?.trim()) && !complete;
               return (
                 <button
                   key={p.codigo}
@@ -179,7 +181,10 @@ export default function CargaPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 500 }}>{p.codigo}</div>
-                    {d?.precio && <div style={{ color: "var(--text-light)", fontSize: "0.7rem" }}>${d.precio}</div>}
+                    <div style={{ color: "var(--text-light)", fontSize: "0.7rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                      {d?.precio && <span>${d.precio}</span>}
+                      {d?.stock && <span>· {d.stock} u.</span>}
+                    </div>
                   </div>
                   {complete && <Check size={16} color="#4a7a3a" />}
                   {partial && <span style={{ color: "#c08040", fontSize: "0.7rem" }}>incompleto</span>}
@@ -310,21 +315,67 @@ export default function CargaPage() {
 
           {/* Campos */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "1.5rem" }}>
-            <div>
-              <label style={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text)", marginBottom: "0.5rem" }}>
-                Precio (ARS)
-              </label>
-              <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--border)", borderRadius: "8px", padding: "0 0.9rem", background: "var(--white)" }}>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text-muted)", marginRight: "0.4rem" }}>$</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={currentData.precio}
-                  onChange={(e) => updateField("precio", e.target.value)}
-                  placeholder="42000"
-                  style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text)", padding: "0.9rem 0" }}
-                />
+
+            {/* Precio + Stock en una fila */}
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div style={{ flex: "1 1 55%" }}>
+                <label style={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text)", marginBottom: "0.5rem" }}>
+                  Precio (ARS)
+                </label>
+                <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--border)", borderRadius: "8px", padding: "0 0.9rem", background: "var(--white)" }}>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text-muted)", marginRight: "0.4rem" }}>$</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={currentData.precio}
+                    onChange={(e) => updateField("precio", e.target.value)}
+                    placeholder="42000"
+                    style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text)", padding: "0.9rem 0", minWidth: 0 }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ flex: "1 1 40%" }}>
+                <label style={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "0.7rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text)", marginBottom: "0.5rem" }}>
+                  Stock (unidades)
+                </label>
+                <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--border)", borderRadius: "8px", background: "var(--white)" }}>
+                  {/* − */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = Math.max(0, parseInt(currentData.stock || "0", 10) - 1);
+                      updateField("stock", String(v));
+                    }}
+                    style={{ padding: "0.9rem 0.85rem", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "1.1rem", color: "var(--text-muted)", lineHeight: 1 }}
+                    aria-label="Restar"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    min="0"
+                    value={currentData.stock}
+                    onChange={(e) => updateField("stock", e.target.value)}
+                    placeholder="0"
+                    style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text)", padding: "0.9rem 0", textAlign: "center", minWidth: 0 }}
+                  />
+                  {/* + */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = parseInt(currentData.stock || "0", 10) + 1;
+                      updateField("stock", String(v));
+                    }}
+                    style={{ padding: "0.9rem 0.85rem", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "1.1rem", color: "var(--text-muted)", lineHeight: 1 }}
+                    aria-label="Sumar"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
 
