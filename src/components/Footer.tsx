@@ -99,9 +99,15 @@ export default function Footer() {
           © 2026 Amapola. Todos los derechos reservados.
         </p>
         <div style={{ display: "flex", gap: "1.5rem" }}>
-          {["Términos y condiciones", "Política de privacidad"].map((t, i) => (
-            <a key={i} href="#" style={{ fontFamily: "var(--font-sans)", fontSize: "0.65rem", color: "var(--text-muted)", textDecoration: "none", letterSpacing: "0.04em" }}>
-              {t}
+          {[
+            { label: "Política de privacidad", href: "/privacidad" },
+            { label: "Términos y condiciones", href: "/privacidad#terminos" },
+          ].map((t, i) => (
+            <a key={i} href={t.href} style={{ fontFamily: "var(--font-sans)", fontSize: "0.65rem", color: "var(--text-muted)", textDecoration: "none", letterSpacing: "0.04em", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "var(--text-light)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
+            >
+              {t.label}
             </a>
           ))}
         </div>

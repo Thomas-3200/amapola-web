@@ -3,6 +3,7 @@ import { EB_Garamond, Raleway } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
 import CartDrawer from "@/components/CartDrawer";
+import CookieBanner from "@/components/CookieBanner";
 
 const ebGaramond = EB_Garamond({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <CartDrawer />
+          <CookieBanner />
         </CartProvider>
       </body>
     </html>
