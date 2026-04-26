@@ -124,7 +124,7 @@ export default function CheckoutPage() {
       <AnnouncementBar />
       <Header />
 
-      <section style={{ padding: "3rem 1.25rem 4rem", backgroundColor: "var(--white)" }}>
+      <section className="checkout-section-pad" style={{ padding: "3rem 1.25rem 4rem", backgroundColor: "var(--white)" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto" }}>
           <Link
             href="/"
@@ -336,10 +336,19 @@ export default function CheckoutPage() {
       <Footer />
 
       <style>{`
+        /* ── Desktop → 2 columnas ─────────────────────────────────────────── */
         @media (max-width: 900px) {
-          .checkout-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
-          .checkout-summary { position: static !important; }
+          .checkout-grid    { grid-template-columns: 1fr !important; gap: 2rem !important; }
+          .checkout-summary { position: static !important; order: -1; }
         }
+
+        /* ── Mobile fino (≤ 480px) ─────────────────────────────────────────── */
+        @media (max-width: 480px) {
+          .checkout-section-pad { padding: 2rem 1rem 3rem !important; }
+          .checkout-row { flex-direction: column !important; }
+        }
+
+        /* ── Spinner ─────────────────────────────────────────────────────── */
         .spin { animation: spin 0.9s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
@@ -364,7 +373,7 @@ function Input({
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: "0.3rem", flex: 1 }}>
+    <label style={{ display: "flex", flexDirection: "column", gap: "0.3rem", flex: 1, minWidth: "140px" }}>
       <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-light)" }}>
         {label}{required && <span style={{ color: "#c00", marginLeft: 2 }}>*</span>}
       </span>

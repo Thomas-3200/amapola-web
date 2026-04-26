@@ -175,3 +175,14 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Mobile global ─── */
+@media (max-width: 600px) {
+  /* Secciones con padding generoso en desktop, más compacto en mobile */
+  .section-pad-lg { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+  /* Evita overflow horizontal en todo el sitio */
+  body { overflow-x: hidden; }
+}
+
+/* Tap highlight suprimido en móvil para look nativo */
+* { -webkit-tap-highlight-color: transparent; }
