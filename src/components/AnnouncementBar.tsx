@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const messages = [
-  "Envíos a todo el país · Costo fijo $3.500, gratis en compras +$25.000",
-  "Retiro sin costo · Av. Mitre 4553, Villa Domínico (Avellaneda)",
+  "Envíos a todo el país · Costo a coordinar según destino",
+  "Retiro gratis · Av. Mitre 4553, Villa Domínico (Avellaneda)",
   "Cambios y devoluciones dentro de los 7 días con comprobante",
   "Efectivo · Transferencia · Débito · Mercado Pago · Sin recargo",
 ];
@@ -44,6 +44,7 @@ export default function AnnouncementBar() {
         letterSpacing: "0.16em",
         textTransform: "uppercase",
         textAlign: "center",
+        transition: "opacity 0.3s",
       }}>
         {messages[current]}
       </p>

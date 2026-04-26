@@ -5,7 +5,7 @@ import { Plus, Minus } from "lucide-react";
 
 const faqs = [
   { q: "¿Cuáles son los medios de pago?", a: "Aceptamos efectivo, transferencia bancaria, débito y Mercado Pago. Sin recargo en ningún medio." },
-  { q: "¿Hacen envíos a todo el país?", a: "Sí, enviamos a todo el país. El costo es de $3.500 fijo. Los envíos son gratis en compras superiores a $25.000." },
+  { q: "¿Hacen envíos a todo el país?", a: "Sí, enviamos a todo el país. El costo de envío varía según tu dirección y destino — te lo informamos antes de despachar. También podés retirar sin costo en nuestro local." },
   { q: "¿Puedo hacer cambios o devoluciones?", a: "Sí, tenés 7 días para cambiar o devolver el producto con el comprobante de compra." },
   { q: "¿Cómo hago un pedido?", a: "Podés elegir el producto por acá o escribirnos por WhatsApp. Coordinamos el pago y el envío." },
   { q: "¿Tienen local físico?", a: "Sí, estamos en Av. Mitre 4553, Villa Domínico (Avellaneda), CP 1874. También podés retirar sin costo adicional coordinando por WhatsApp." },

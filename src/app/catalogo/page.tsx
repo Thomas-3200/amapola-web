@@ -1,42 +1,189 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { Heart, ShoppingBag, Check, MessageCircle } from "lucide-react";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useCart } from "@/lib/cart";
+import { CATALOG, fmtARS } from "@/lib/products";
+import type { Product } from "@/lib/products";
 
-export const metadata = {
-  title: "Catálogo completo — Amapola",
-  description:
-    "Explorá el catálogo completo de carteras, billeteras, riñoneras y accesorios de Amapola.",
-};
+const CATEGORIES = ["Todos", "Carteras", "Billeteras", "Billeteras Compactas", "Crossbody", "Riñoneras", "Tote Bags", "Accesorios"];
+const WA_BASE = "https://wa.me/5491166676467?text=";
 
-// All 41 product photos
-const allImages = [
-  "IMG_4627", "IMG_4629", "IMG_4630", "IMG_4633", "IMG_4648", "IMG_4649",
-  "IMG_4651", "IMG_4652", "IMG_4653", "IMG_4654", "IMG_4655", "IMG_4656",
-  "IMG_4657", "IMG_4658", "IMG_4659", "IMG_4660", "IMG_4661", "IMG_4662",
-  "IMG_4663", "IMG_4664", "IMG_4665", "IMG_4666", "IMG_4667", "IMG_4668",
-  "IMG_4669", "IMG_4671", "IMG_4672", "IMG_4673", "IMG_4674", "IMG_4677",
-  "IMG_4678", "IMG_4680", "IMG_4682", "IMG_4685", "IMG_4687", "IMG_4690",
-  "IMG_4691", "IMG_4693", "IMG_4699", "IMG_4702", "IMG_4703",
-];
+function CatalogCard({ p, index }: { p: Product; index: number }) {
+  const [liked, setLiked] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
-const categories = [
-  "Todos",
-  "Carteras",
-  "Billeteras",
-  "Crossbody",
-  "Riñoneras",
-  "Accesorios",
-];
+  const hasPrecio = p.precio > 0;
+
+  const handleAdd = () => {
+    if (!hasPrecio) return;
+    addItem({ codigo: p.codigo, nombre: p.nombre, precio: p.precio, imagen: p.imagen });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
+
+  const waHref = WA_BASE + encodeURIComponent(
+    hasPrecio
+      ? `Hola Amapola! Me interesa "${p.nombre}" (${fmtARS(p.precio)}). Código: ${p.codigo}`
+      : `Hola Amapola! Me interesa el producto ${p.codigo} (Pieza ${String(index + 1).padStart(2, "0")}). ¿Podrías darme más información?`
+  );
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Imagen */}
+      <div
+        style={{
+          position: "relative", width: "100%", aspectRatio: "3/4",
+          backgroundColor: "var(--bg-card)", overflow: "hidden", marginBottom: "0.9rem",
+        }}
+      >
+        <Image
+          src={`/images/products/${p.imagen}`}
+          alt={hasPrecio ? p.nombre : `Amapola producto ${index + 1}`}
+          fill
+          sizes="(max-width: 600px) 50vw, (max-width: 900px) 33vw, 25vw"
+          style={{
+            objectFit: "cover",
+            transition: "transform 0.6s ease",
+            transform: hovered ? "scale(1.04)" : "scale(1)",
+          }}
+        />
+
+        {/* Guardar */}
+        <button
+          onClick={() => setLiked(!liked)}
+          style={{
+            position: "absolute", top: "0.75rem", right: "0.75rem",
+            background: "rgba(255,255,255,0.85)", borderRadius: "50%",
+            border: "none", cursor: "pointer", padding: "0.4rem",
+            opacity: hovered || liked ? 1 : 0.5,
+            transition: "opacity 0.2s",
+          }}
+          aria-label="Guardar"
+        >
+          <Heart size={15} strokeWidth={1.5} color={liked ? "#c00" : "var(--text)"} fill={liked ? "#c00" : "none"} />
+        </button>
+
+        {/* Quick-add hover (desktop) — solo si tiene precio */}
+        {hasPrecio && (
+          <button
+            onClick={handleAdd}
+            className="lv-quick-add"
+            style={{
+              position: "absolute", left: "50%", bottom: "0.75rem",
+              transform: `translateX(-50%) translateY(${hovered || added ? "0" : "8px"})`,
+              opacity: hovered || added ? 1 : 0,
+              transition: "opacity 0.25s ease, transform 0.25s ease",
+              background: added ? "#1a6d3a" : "var(--text)",
+              color: "var(--white)",
+              border: "none", cursor: "pointer",
+              padding: "0.55rem 1rem", borderRadius: 999,
+              fontFamily: "var(--font-sans)", fontSize: "0.68rem",
+              letterSpacing: "0.08em", textTransform: "uppercase",
+              display: "inline-flex", alignItems: "center", gap: "0.4rem",
+              whiteSpace: "nowrap",
+            }}
+            aria-label={`Agregar ${p.nombre} al carrito`}
+          >
+            {added
+              ? <><Check size={13} strokeWidth={2} /> Agregado</>
+              : <><ShoppingBag size={13} strokeWidth={1.6} /> Agregar</>}
+          </button>
+        )}
+
+        {/* Badge "Consultar" — solo sin precio, hover */}
+        {!hasPrecio && hovered && (
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lv-quick-add"
+            style={{
+              position: "absolute", left: "50%", bottom: "0.75rem",
+              transform: "translateX(-50%)",
+              background: "rgba(26,26,26,0.88)",
+              color: "var(--white)",
+              padding: "0.55rem 1rem", borderRadius: 999,
+              fontFamily: "var(--font-sans)", fontSize: "0.68rem",
+              letterSpacing: "0.08em", textTransform: "uppercase",
+              display: "inline-flex", alignItems: "center", gap: "0.4rem",
+              whiteSpace: "nowrap", textDecoration: "none",
+            }}
+          >
+            <MessageCircle size={13} strokeWidth={1.5} /> Consultar
+          </a>
+        )}
+      </div>
+
+      {/* Caption */}
+      <div style={{ paddingBottom: "1.25rem" }}>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.72rem", letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text)", marginBottom: "0.25rem" }}>
+          {hasPrecio ? p.nombre : `Pieza ${String(index + 1).padStart(2, "0")}`}
+        </p>
+
+        {hasPrecio ? (
+          <>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.72rem", color: "var(--text-light)", fontWeight: 300, marginBottom: "0.6rem" }}>
+              {fmtARS(p.precio)}
+            </p>
+            {/* Mobile add */}
+            <button
+              onClick={handleAdd}
+              className="lv-add-mobile"
+              style={{
+                display: "none", width: "100%",
+                background: added ? "#1a6d3a" : "transparent",
+                color: added ? "var(--white)" : "var(--text)",
+                border: `1px solid ${added ? "#1a6d3a" : "var(--border)"}`,
+                cursor: "pointer", padding: "0.5rem 0.7rem", borderRadius: 999,
+                fontFamily: "var(--font-sans)", fontSize: "0.65rem",
+                letterSpacing: "0.08em", textTransform: "uppercase",
+                alignItems: "center", justifyContent: "center", gap: "0.35rem",
+              }}
+            >
+              {added
+                ? <><Check size={12} strokeWidth={2} /> Agregado</>
+                : <><ShoppingBag size={12} strokeWidth={1.6} /> Agregar</>}
+            </button>
+          </>
+        ) : (
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: "var(--font-sans)", fontSize: "0.7rem", color: "var(--text-light)", fontWeight: 300, textDecoration: "none" }}
+          >
+            Consultar precio →
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function CatalogoPage() {
+  const [activeCategory, setActiveCategory] = useState("Todos");
+
+  const filtered = activeCategory === "Todos"
+    ? CATALOG
+    : CATALOG.filter((p) => p.categoria === activeCategory);
+
   return (
     <>
       <AnnouncementBar />
       <Header />
 
-      {/* Hero title */}
+      {/* Hero */}
       <section style={{ backgroundColor: "var(--white)", padding: "4rem 2rem 2rem", textAlign: "center" }}>
         <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
           <p className="label-section" style={{ marginBottom: "0.75rem" }}>Catálogo</p>
@@ -44,106 +191,58 @@ export default function CatalogoPage() {
             Todas nuestras piezas.
           </h1>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.9rem", fontWeight: 300, color: "var(--text-light)", maxWidth: "520px", margin: "0 auto", lineHeight: 1.7 }}>
-            Explorá la colección completa de Amapola. Consultá disponibilidad y precios por WhatsApp.
+            Explorá la colección completa de Amapola. Comprá directamente o consultanos por WhatsApp.
           </p>
         </div>
       </section>
 
-      {/* Filter pills (visual only for now) */}
+      {/* Filtros */}
       <section style={{ backgroundColor: "var(--white)", padding: "1rem 2rem 2rem", borderBottom: "1px solid var(--border)" }}>
         <div style={{ maxWidth: "var(--container)", margin: "0 auto", display: "flex", gap: "0.6rem", flexWrap: "wrap", justifyContent: "center" }}>
-          {categories.map((c, i) => (
-            <span
-              key={c}
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                padding: "0.55rem 1.25rem",
-                borderRadius: "100px",
+                display: "inline-flex", alignItems: "center",
+                padding: "0.55rem 1.25rem", borderRadius: "100px",
                 border: "1px solid var(--border)",
-                backgroundColor: i === 0 ? "var(--text)" : "transparent",
-                color: i === 0 ? "var(--white)" : "var(--text)",
-                fontFamily: "var(--font-sans)",
-                fontSize: "0.7rem",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                cursor: "default",
+                backgroundColor: activeCategory === cat ? "var(--text)" : "transparent",
+                color: activeCategory === cat ? "var(--white)" : "var(--text)",
+                fontFamily: "var(--font-sans)", fontSize: "0.7rem",
+                letterSpacing: "0.08em", textTransform: "uppercase",
+                cursor: "pointer", transition: "background 0.2s, color 0.2s",
               }}
             >
-              {c}
-            </span>
+              {cat}
+            </button>
           ))}
         </div>
       </section>
 
-      {/* Product grid */}
+      {/* Grid */}
       <section style={{ backgroundColor: "var(--white)", padding: "3rem 2rem" }}>
         <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
-          <div
-            className="catalog-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "2rem 1.25rem",
-            }}
-          >
-            {allImages.map((name, i) => (
-              <a
-                key={name}
-                href={`https://wa.me/5491166676467?text=Hola%20Amapola!%20Me%20interesa%20el%20producto%20${name}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: "none", color: "inherit", display: "block" }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    aspectRatio: "3/4",
-                    backgroundColor: "var(--bg-card)",
-                    overflow: "hidden",
-                    marginBottom: "0.9rem",
-                  }}
-                >
-                  <Image
-                    src={`/images/products/${name}.jpg`}
-                    alt={`Amapola producto ${i + 1}`}
-                    fill
-                    sizes="(max-width: 600px) 50vw, (max-width: 900px) 33vw, 25vw"
-                    style={{ objectFit: "cover", transition: "transform 0.6s ease" }}
-                  />
-                </div>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "0.72rem",
-                    letterSpacing: "0.06em",
-                    textTransform: "uppercase",
-                    color: "var(--text)",
-                    marginBottom: "0.3rem",
-                  }}
-                >
-                  Pieza {String(i + 1).padStart(2, "0")}
-                </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "0.7rem",
-                    color: "var(--text-light)",
-                    fontWeight: 300,
-                  }}
-                >
-                  Consultar por WhatsApp
-                </p>
-              </a>
-            ))}
-          </div>
+
+          {filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "4rem 0" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.9rem", color: "var(--text-light)" }}>
+                No hay productos en esta categoría todavía.
+              </p>
+            </div>
+          ) : (
+            <div className="catalog-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "2rem 1.25rem" }}>
+              {filtered.map((p, i) => (
+                <CatalogCard key={p.codigo} p={p} index={CATALOG.indexOf(p)} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* CTA */}
         <div style={{ textAlign: "center", marginTop: "4rem" }}>
           <a
-            href="https://wa.me/5491166676467?text=Hola%20Amapola!%20Quiero%20más%20información%20del%20catálogo"
+            href={WA_BASE + encodeURIComponent("Hola Amapola! Quiero más información del catálogo")}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-pill"
@@ -154,14 +253,10 @@ export default function CatalogoPage() {
             <Link
               href="/"
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "0.72rem",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "var(--text-light)",
-                textDecoration: "none",
-                borderBottom: "1px solid var(--text-light)",
-                paddingBottom: "2px",
+                fontFamily: "var(--font-sans)", fontSize: "0.72rem",
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                color: "var(--text-light)", textDecoration: "none",
+                borderBottom: "1px solid var(--text-light)", paddingBottom: "2px",
               }}
             >
               ← Volver al inicio
@@ -175,6 +270,10 @@ export default function CatalogoPage() {
       <style>{`
         @media (max-width: 900px) { .catalog-grid { grid-template-columns: repeat(3, 1fr) !important; } }
         @media (max-width: 600px) { .catalog-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1.5rem 0.75rem !important; } }
+        @media (hover: none), (max-width: 768px) {
+          .lv-quick-add { display: none !important; }
+          .lv-add-mobile { display: inline-flex !important; }
+        }
       `}</style>
     </>
   );
