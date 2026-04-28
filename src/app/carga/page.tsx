@@ -3,25 +3,15 @@
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Check, Send, Save, Download } from "lucide-react";
+import { CATALOG } from "@/lib/products";
 
-// 41 productos con su código y foto
-const PRODUCTS = [
-  "IMG_4627", "IMG_4629", "IMG_4630", "IMG_4633", "IMG_4648", "IMG_4649",
-  "IMG_4651", "IMG_4652", "IMG_4653", "IMG_4654", "IMG_4655", "IMG_4656",
-  "IMG_4657", "IMG_4658", "IMG_4659", "IMG_4660", "IMG_4661", "IMG_4662",
-  "IMG_4663", "IMG_4664", "IMG_4665", "IMG_4666", "IMG_4667", "IMG_4668",
-  "IMG_4669", "IMG_4671", "IMG_4672", "IMG_4673", "IMG_4674", "IMG_4677",
-  "IMG_4678", "IMG_4680", "IMG_4682", "IMG_4685", "IMG_4687", "IMG_4690",
-  "IMG_4691", "IMG_4693", "IMG_4699", "IMG_4702", "IMG_4703",
-].map((img, i) => ({
-  codigo: `AMP-${String(i + 1).padStart(3, "0")}`,
-  foto: `${img}.jpg`,
-}));
+// Usamos los 19 productos reales del catálogo
+const PRODUCTS = CATALOG;
 
 type ProductData = { precio: string; descripcion: string; stock: string };
 type DataMap = Record<string, ProductData>;
 
-const STORAGE_KEY = "amapola_carga_v1";
+const STORAGE_KEY = "amapola_carga_v2";
 const DESTINATION_EMAIL = "cabj.lopez.thomas@gmail.com";
 
 export default function CargaPage() {
@@ -55,6 +45,9 @@ export default function CargaPage() {
   const current = PRODUCTS[index];
   const currentData = data[current.codigo] || { precio: "", descripcion: "", stock: "" };
 
+  // Pre-populate precio if already defined in CATALOG
+  const catalogPrecio = current.precio > 0 ? String(current.precio) : "";
+
   const completedCount = useMemo(
     () => Object.values(data).filter((d) => d.precio.trim() && d.descripcion.trim() && d.stock.trim()).length,
     [data]
@@ -79,13 +72,13 @@ export default function CargaPage() {
 
   // Build CSV text
   function buildCSV() {
-    const header = "codigo,foto,precio_ars,stock,descripcion_corta";
+    const header = "codigo,nombre,categoria,imagen_hero,precio_ars,stock,descripcion_corta";
     const rows = PRODUCTS.map((p) => {
       const d = data[p.codigo] || { precio: "", descripcion: "", stock: "" };
-      const precio = d.precio.replace(/[^\d]/g, "");
+      const precio = d.precio.replace(/[^\d]/g, "") || (p.precio > 0 ? String(p.precio) : "");
       const stock = d.stock.replace(/[^\d]/g, "");
       const desc = `"${d.descripcion.replace(/"/g, '""')}"`;
-      return `${p.codigo},${p.foto},${precio},${stock},${desc}`;
+      return `${p.codigo},"${p.nombre}","${p.categoria}",${p.imagen},${precio},${stock},${desc}`;
     });
     return [header, ...rows].join("\n");
   }
@@ -95,7 +88,7 @@ export default function CargaPage() {
     PRODUCTS.forEach((p) => {
       const d = data[p.codigo];
       if (d && (d.precio || d.descripcion || d.stock)) {
-        lines.push(`${p.codigo} (${p.foto})`);
+        lines.push(`${p.codigo} — ${p.nombre} (${p.categoria})`);
         if (d.precio) lines.push(`  Precio: $${d.precio}`);
         if (d.stock) lines.push(`  Stock: ${d.stock} unidades`);
         if (d.descripcion) lines.push(`  Descripción: ${d.descripcion}`);
@@ -155,8 +148,9 @@ export default function CargaPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "2rem" }}>
             {PRODUCTS.map((p, i) => {
               const d = data[p.codigo];
-              const complete = d?.precio?.trim() && d?.descripcion?.trim() && d?.stock?.trim();
-              const partial = d && (d.precio?.trim() || d.descripcion?.trim() || d.stock?.trim()) && !complete;
+              const precioFinal = d?.precio?.trim() || (p.precio > 0 ? String(p.precio) : "");
+              const complete = precioFinal && d?.descripcion?.trim() && d?.stock?.trim();
+              const partial = (precioFinal || d?.descripcion?.trim() || d?.stock?.trim()) && !complete;
               return (
                 <button
                   key={p.codigo}
@@ -177,12 +171,13 @@ export default function CargaPage() {
                   }}
                 >
                   <div style={{ position: "relative", width: 40, height: 40, flexShrink: 0, borderRadius: 4, overflow: "hidden", background: "var(--bg-card)" }}>
-                    <Image src={`/images/products/${p.foto}`} alt={p.codigo} fill sizes="40px" style={{ objectFit: "cover" }} />
+                    <Image src={`/images/products/${p.imagen}`} alt={p.nombre} fill sizes="40px" style={{ objectFit: "cover" }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 500 }}>{p.codigo}</div>
+                    <div style={{ fontWeight: 500 }}>{p.nombre}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.65rem", marginBottom: "0.15rem" }}>{p.codigo} · {p.categoria}</div>
                     <div style={{ color: "var(--text-light)", fontSize: "0.7rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                      {d?.precio && <span>${d.precio}</span>}
+                      {precioFinal && <span>${precioFinal}</span>}
                       {d?.stock && <span>· {d.stock} u.</span>}
                     </div>
                   </div>
@@ -267,7 +262,7 @@ export default function CargaPage() {
       <div style={{ position: "sticky", top: 0, background: "var(--white)", borderBottom: "1px solid var(--border)", padding: "0.75rem 1rem", zIndex: 10 }}>
         <div style={{ maxWidth: "640px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
           <span style={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "0.8rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text)" }}>
-            Amapola
+            Amapola · Carga
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
             <span style={{ fontFamily: "var(--font-sans)", fontSize: "0.7rem", color: "var(--text-light)" }}>
@@ -293,25 +288,39 @@ export default function CargaPage() {
 
           {/* Header del producto */}
           <div style={{ marginBottom: "1rem" }}>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.35rem" }}>
-              Producto
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.2rem" }}>
+              {current.codigo} · {current.categoria}
             </p>
-            <h1 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, fontSize: "1.6rem", color: "var(--text)" }}>
-              {current.codigo}
+            <h1 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, fontSize: "1.6rem", color: "var(--text)", lineHeight: 1.2 }}>
+              {current.nombre}
             </h1>
           </div>
 
-          {/* Foto */}
-          <div style={{ position: "relative", width: "100%", aspectRatio: "4/5", background: "var(--bg-card)", borderRadius: "8px", overflow: "hidden", marginBottom: "1.75rem" }}>
+          {/* Foto hero */}
+          <div style={{ position: "relative", width: "100%", aspectRatio: "4/5", background: "var(--bg-card)", borderRadius: "8px", overflow: "hidden", marginBottom: "0.75rem" }}>
             <Image
-              src={`/images/products/${current.foto}`}
-              alt={current.codigo}
+              src={`/images/products/${current.imagen}`}
+              alt={current.nombre}
               fill
               sizes="(max-width: 640px) 100vw, 640px"
               style={{ objectFit: "cover" }}
               priority
             />
           </div>
+
+          {/* Tira de miniaturas (sólo si hay más de 1 foto) */}
+          {current.imagenes.length > 1 && (
+            <div style={{ display: "flex", gap: "0.4rem", marginBottom: "1.5rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
+              {current.imagenes.map((img, i) => (
+                <div key={i} style={{ position: "relative", flexShrink: 0, width: 54, height: 54, borderRadius: 6, overflow: "hidden", background: "var(--bg-card)", border: i === 0 ? "2px solid var(--text)" : "2px solid transparent" }}>
+                  <Image src={`/images/products/${img}`} alt={`Ángulo ${i + 1}`} fill sizes="54px" style={{ objectFit: "cover" }} />
+                </div>
+              ))}
+              <p style={{ alignSelf: "center", fontFamily: "var(--font-sans)", fontSize: "0.62rem", color: "var(--text-muted)", whiteSpace: "nowrap", paddingLeft: "0.25rem" }}>
+                {current.imagenes.length} fotos
+              </p>
+            </div>
+          )}
 
           {/* Campos */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "1.5rem" }}>
@@ -328,12 +337,17 @@ export default function CargaPage() {
                     type="number"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={currentData.precio}
+                    value={currentData.precio || catalogPrecio}
                     onChange={(e) => updateField("precio", e.target.value)}
-                    placeholder="42000"
+                    placeholder={catalogPrecio || "42000"}
                     style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: "var(--font-sans)", fontSize: "1rem", color: "var(--text)", padding: "0.9rem 0", minWidth: 0 }}
                   />
                 </div>
+                {current.precio > 0 && !currentData.precio && (
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.65rem", color: "#4a7a3a", marginTop: "0.3rem" }}>
+                    ✓ Precio cargado: ${current.precio.toLocaleString("es-AR")}
+                  </p>
+                )}
               </div>
 
               <div style={{ flex: "1 1 40%" }}>
@@ -388,7 +402,7 @@ export default function CargaPage() {
                 onChange={(e) => updateField("descripcion", e.target.value)}
                 placeholder="Ej: Cartera en cuero sintético, con compartimento amplio y cierre. Incluye bandolera desmontable."
                 rows={4}
-                style={{ width: "100%", border: "1px solid var(--border)", borderRadius: "8px", padding: "0.9rem", fontFamily: "var(--font-sans)", fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.5, resize: "vertical", background: "var(--white)", outline: "none" }}
+                style={{ width: "100%", border: "1px solid var(--border)", borderRadius: "8px", padding: "0.9rem", fontFamily: "var(--font-sans)", fontSize: "0.9rem", color: "var(--text)", lineHeight: 1.5, resize: "vertical", background: "var(--white)", outline: "none", boxSizing: "border-box" }}
               />
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
                 1–2 oraciones. Describí material, estilo y detalles.
