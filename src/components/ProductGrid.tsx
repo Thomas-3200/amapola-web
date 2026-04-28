@@ -117,18 +117,7 @@ export default function ProductGrid() {
       ────────────────────────────────────────────────────────────────────────── */}
       <div className="video-banner">
 
-        {/* Fallback image (visible cuando el video no carga — Chrome/Firefox desktop) */}
-        <Image
-          src="/images/lifestyle/hero4.png"
-          alt="Amapola nueva colección"
-          fill
-          style={{ objectFit: "cover", objectPosition: "center 35%" }}
-          sizes="100vw"
-          priority={false}
-          className="video-poster-img"
-        />
-
-        {/* Video (se superpone sobre la imagen si el browser lo soporta) */}
+        {/* Video — poster actúa como fallback estático en Chrome/Firefox si el MOV no carga */}
         <video
           autoPlay
           muted
@@ -137,7 +126,6 @@ export default function ProductGrid() {
           poster="/images/lifestyle/hero4.png"
           className="video-el"
         >
-          {/* MOV para iOS/Safari; el browser ignorará si no puede reproducirlo */}
           <source src="/videos/IMG_4686.MOV" type="video/quicktime" />
           <source src="/videos/IMG_4686.MOV" type="video/mp4" />
         </video>
@@ -191,19 +179,13 @@ export default function ProductGrid() {
           overflow: hidden;
           background-color: #0f0d0b;
         }
-        .video-poster-img {
-          object-fit: cover;
-          opacity: 0.75;
-        }
         .video-el {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          opacity: 0.85;
-          /* En browsers que no soportan MOV, el video element queda transparent
-             y se ve la imagen de fallback debajo */
+          opacity: 1;
         }
 
         /* ── Slogan ────────────────────────────────────────────────────────── */

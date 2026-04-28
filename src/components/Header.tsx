@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Search, Menu, X, Heart, MessageCircle, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
@@ -23,6 +24,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { count, openCart } = useCart();
 
   useEffect(() => {
@@ -149,21 +151,36 @@ export default function Header() {
             transform: "translateX(-50%)",
             padding: "0 0.5rem",
             backgroundColor: "var(--white)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <span
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontWeight: 600,
-              fontSize: "1rem",
-              letterSpacing: "0.25em",
-              textTransform: "uppercase",
-              color: "var(--text)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Amapola
-          </span>
+          {!logoError ? (
+            <Image
+              src="/images/brand/logo.png"
+              alt="Amapola"
+              width={100}
+              height={44}
+              priority
+              style={{ objectFit: "contain", display: "block" }}
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: 600,
+                fontSize: "1rem",
+                letterSpacing: "0.25em",
+                textTransform: "uppercase",
+                color: "var(--text)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Amapola
+            </span>
+          )}
         </a>
 
         {/* RIGHT */}

@@ -51,9 +51,9 @@ export default function Footer() {
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
             {[
-              { icon: <MapPin size={13} strokeWidth={1.5} />, text: "Av. Mitre 4553, Villa Domínico" },
+              { icon: <MapPin size={13} strokeWidth={1.5} />, text: "Av. Mitre 4553 — Locales 29 y 47, Villa Domínico" },
               { icon: <Phone size={13} strokeWidth={1.5} />, text: "+54 9 11 6667-6467" },
-              { icon: <Clock size={13} strokeWidth={1.5} />, text: "Lun–Sáb 10:00–19:00" },
+              { icon: <Clock size={13} strokeWidth={1.5} />, text: "Vie · Sáb · Dom · Feriados: 10:00–20:00" },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span style={{ color: "var(--text-muted)" }}>{item.icon}</span>
