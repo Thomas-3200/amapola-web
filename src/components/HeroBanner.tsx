@@ -24,11 +24,8 @@ export default function HeroBanner() {
           alt="Amapola — Nueva Colección"
           fill
           priority
-          style={{
-            objectFit: "cover",
-            objectPosition: "center 30%",
-            opacity: 0.88,
-          }}
+          className="hero-img"
+          style={{ objectFit: "cover", opacity: 0.88 }}
           sizes="100vw"
         />
       </div>
@@ -87,16 +84,23 @@ export default function HeroBanner() {
           font-size: clamp(2.2rem, 6vw, 5rem);
         }
 
+        /* ── object-position por breakpoint ──────────────────────────────── */
+        /* Centra el encuadre sobre el cuerpo de la cartera, no la mano */
+        .hero-img { object-position: center 58%; }
+        @media (max-width: 900px) { .hero-img { object-position: center 50%; } }
+        @media (max-width: 600px) { .hero-img { object-position: center 44%; } }
+
         /* ── Ken Burns ────────────────────────────────────────────────────── */
+        /* Solo zoom puro — sin traslación para no desplazar la cartera */
         .hero-bg {
           position: absolute;
-          inset: -6%;
-          animation: kenburns 18s ease-in-out infinite alternate;
+          inset: -5%;
+          animation: kenburns 20s ease-in-out infinite alternate;
           will-change: transform;
         }
         @keyframes kenburns {
-          0%   { transform: scale(1)    translate(0%,    0%);    }
-          100% { transform: scale(1.09) translate(-1.5%, -0.8%); }
+          0%   { transform: scale(1);    }
+          100% { transform: scale(1.07); }
         }
 
         /* ── Entradas fade-up escalonadas ─────────────────────────────────── */
@@ -118,13 +122,12 @@ export default function HeroBanner() {
             font-size: 2.2rem !important;
             margin-bottom: 1.5rem !important;
           }
-          /* Ken Burns más suave en mobile */
           .hero-bg {
-            animation: kenburns-mobile 20s ease-in-out infinite alternate;
+            animation: kenburns-mobile 22s ease-in-out infinite alternate;
           }
           @keyframes kenburns-mobile {
             0%   { transform: scale(1);    }
-            100% { transform: scale(1.06); }
+            100% { transform: scale(1.05); }
           }
         }
 
