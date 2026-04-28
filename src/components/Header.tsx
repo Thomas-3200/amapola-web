@@ -161,8 +161,8 @@ export default function Header() {
             <Image
               src="/images/brand/logo.png"
               alt="Amapola"
-              width={112}
-              height={48}
+              width={52}
+              height={50}
               priority
               style={{ objectFit: "contain", display: "block" }}
               onError={() => setLogoError(true)}
