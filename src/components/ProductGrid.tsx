@@ -24,7 +24,6 @@ function ProductCard({ p }: { p: Product }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Imagen */}
       <div style={{ position: "relative", aspectRatio: "3/4", overflow: "hidden", backgroundColor: "var(--bg-card)" }}>
         <Image
           src={`/images/products/${p.imagen}`}
@@ -38,7 +37,6 @@ function ProductCard({ p }: { p: Product }) {
           sizes="(max-width: 768px) 50vw, 25vw"
         />
 
-        {/* Guardar */}
         <button
           onClick={() => setLiked(!liked)}
           style={{
@@ -53,7 +51,6 @@ function ProductCard({ p }: { p: Product }) {
           <Heart size={16} strokeWidth={1.5} color={liked ? "#c00" : "var(--text)"} fill={liked ? "#c00" : "none"} />
         </button>
 
-        {/* Quick-add (hover desktop) */}
         <button
           onClick={handleAdd}
           aria-label={`Agregar ${p.nombre} al carrito`}
@@ -77,7 +74,6 @@ function ProductCard({ p }: { p: Product }) {
         </button>
       </div>
 
-      {/* Caption */}
       <div style={{ padding: "0.85rem 0.25rem 1.25rem" }}>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.78rem", fontWeight: 400, color: "var(--text)", marginBottom: "0.3rem", lineHeight: 1.3 }}>
           {p.nombre}
@@ -86,7 +82,6 @@ function ProductCard({ p }: { p: Product }) {
           {fmtARS(p.precio)}
         </p>
 
-        {/* Mobile add button */}
         <button
           onClick={handleAdd}
           className="lv-add-mobile"
@@ -112,22 +107,68 @@ function ProductCard({ p }: { p: Product }) {
 
 export default function ProductGrid() {
   return (
-    <section style={{ backgroundColor: "var(--white)", padding: "5rem 0" }}>
+    <section style={{ backgroundColor: "var(--white)", paddingBottom: "5rem" }}>
 
-      {/* Video editorial */}
-      <div style={{ position: "relative", width: "100%", height: "50vh", minHeight: "280px", overflow: "hidden", backgroundColor: "#0a0a0a", marginBottom: "5rem" }}>
-        <video autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }}>
+      {/* ── Banner de video con slogan ─────────────────────────────────────────
+          · El video .MOV funciona en iOS/Safari.
+          · poster= actúa como fallback para Chrome/Firefox desktop:
+            muestra una imagen editorial cuando el browser no puede reproducir MOV.
+          · El overlay con slogan se ve siempre, en todos los browsers.
+      ────────────────────────────────────────────────────────────────────────── */}
+      <div className="video-banner">
+
+        {/* Fallback image (visible cuando el video no carga — Chrome/Firefox desktop) */}
+        <Image
+          src="/images/lifestyle/hero4.png"
+          alt="Amapola nueva colección"
+          fill
+          style={{ objectFit: "cover", objectPosition: "center 35%" }}
+          sizes="100vw"
+          priority={false}
+          className="video-poster-img"
+        />
+
+        {/* Video (se superpone sobre la imagen si el browser lo soporta) */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/images/lifestyle/hero4.png"
+          className="video-el"
+        >
+          {/* MOV para iOS/Safari; el browser ignorará si no puede reproducirlo */}
+          <source src="/videos/IMG_4686.MOV" type="video/quicktime" />
           <source src="/videos/IMG_4686.MOV" type="video/mp4" />
         </video>
+
+        {/* Gradiente */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.55) 100%)",
+        }} />
+
+        {/* ── Slogan overlay ── */}
+        <div className="video-slogan">
+          <p className="label-section video-label">
+            Nueva Colección · 2026
+          </p>
+          <h2 className="video-headline">
+            Piezas que se notan.
+          </h2>
+          <a href="/catalogo" className="btn-pill-white video-cta">
+            Ver colección
+          </a>
+        </div>
       </div>
 
-      {/* Encabezado */}
-      <div style={{ textAlign: "center", marginBottom: "3rem", padding: "0 2rem" }}>
+      {/* ── Encabezado productos ─────────────────────────────────────────────── */}
+      <div style={{ textAlign: "center", margin: "4rem 0 3rem", padding: "0 2rem" }}>
         <p className="label-section" style={{ marginBottom: "0.75rem" }}>Nuevos Ingresos</p>
         <h2 className="headline-lg">Nueva Colección</h2>
       </div>
 
-      {/* Grid */}
+      {/* ── Grid ─────────────────────────────────────────────────────────────── */}
       <div
         style={{ maxWidth: "var(--container)", margin: "0 auto", padding: "0 2rem", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem 1.5rem" }}
         className="prod-grid"
@@ -135,17 +176,80 @@ export default function ProductGrid() {
         {FEATURED.map((p) => <ProductCard key={p.codigo} p={p} />)}
       </div>
 
-      {/* CTA */}
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
       <div style={{ textAlign: "center", marginTop: "3.5rem" }}>
         <a href="/catalogo" className="btn-pill">Ver catálogo completo</a>
       </div>
 
       <style>{`
+        /* ── Video banner ──────────────────────────────────────────────────── */
+        .video-banner {
+          position: relative;
+          width: 100%;
+          height: 58vh;
+          min-height: 320px;
+          overflow: hidden;
+          background-color: #0f0d0b;
+        }
+        .video-poster-img {
+          object-fit: cover;
+          opacity: 0.75;
+        }
+        .video-el {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0.85;
+          /* En browsers que no soportan MOV, el video element queda transparent
+             y se ve la imagen de fallback debajo */
+        }
+
+        /* ── Slogan ────────────────────────────────────────────────────────── */
+        .video-slogan {
+          position: absolute;
+          bottom: 3.5rem;
+          left: 50%;
+          transform: translateX(-50%);
+          text-align: center;
+          width: 100%;
+          padding: 0 2rem;
+          animation: fadeUpHero 1s ease 0.3s both;
+        }
+        .video-label {
+          color: rgba(255,255,255,0.65);
+          margin-bottom: 0.85rem;
+          letter-spacing: 0.22em;
+        }
+        .video-headline {
+          font-family: var(--font-serif);
+          font-weight: 400;
+          font-style: italic;
+          font-size: clamp(2rem, 4.5vw, 3.8rem);
+          color: var(--white);
+          line-height: 1.05;
+          letter-spacing: -0.01em;
+          margin-bottom: 1.75rem;
+        }
+        .video-cta {
+          font-size: 0.7rem;
+          letter-spacing: 0.1em;
+        }
+
+        /* ── Product grid breakpoints ──────────────────────────────────────── */
         @media (max-width: 900px) { .prod-grid { grid-template-columns: repeat(3,1fr) !important; } }
         @media (max-width: 640px) { .prod-grid { grid-template-columns: repeat(2,1fr) !important; } }
         @media (hover: none), (max-width: 768px) {
           .lv-quick-add { display: none !important; }
           .lv-add-mobile { display: inline-flex !important; }
+        }
+
+        /* ── Mobile video ──────────────────────────────────────────────────── */
+        @media (max-width: 600px) {
+          .video-banner { height: 52vh; min-height: 280px; }
+          .video-slogan { bottom: 2.5rem; padding: 0 1.25rem; }
+          .video-headline { font-size: 2rem !important; margin-bottom: 1.25rem !important; }
         }
       `}</style>
     </section>

@@ -5,7 +5,7 @@ import Image from "next/image";
 // Exact LV pattern: label above headline, 4-column image grid with caption below
 const categories = [
   { label: "Carteras", caption: "Cuero & Diseño Propio", image: "/images/products/IMG_4690.jpg", href: "/catalogo" },
-  { label: "Billeteras", caption: "Oreiro Love · Chimola · ch/ml", image: "/images/products/IMG_4648.jpg", href: "/catalogo" },
+  { label: "Billeteras", caption: "Oreiro Love · Chimola · ch/ml", image: "/images/products/IMG_4660.jpg", href: "/catalogo" },
   { label: "Crossbody", caption: "Barbara Bags Collection", image: "/images/products/IMG_4666.jpg", href: "/catalogo" },
   { label: "Riñoneras", caption: "Marca Propia Amapola", image: "/images/products/IMG_4629.jpg", href: "/catalogo" },
 ];
