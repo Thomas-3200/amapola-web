@@ -210,11 +210,11 @@ export default function ProductGrid() {
         .video-slogan {
           position: absolute;
           bottom: 3.5rem;
-          left: 50%;
-          transform: translateX(-50%);
+          left: 0;
+          right: 0;
           text-align: center;
-          width: 100%;
           padding: 0 2rem;
+          box-sizing: border-box;
           animation: fadeUpHero 1s ease 0.3s both;
         }
         .video-label {
@@ -248,8 +248,8 @@ export default function ProductGrid() {
         /* ── Mobile video ──────────────────────────────────────────────────── */
         @media (max-width: 600px) {
           .video-banner { height: 52vh; min-height: 280px; }
-          .video-slogan { bottom: 2.5rem; padding: 0 1.25rem; }
-          .video-headline { font-size: 2rem !important; margin-bottom: 1.25rem !important; }
+          .video-slogan { bottom: 2rem; padding: 0 1.25rem; }
+          .video-headline { font-size: 1.9rem !important; margin-bottom: 1.1rem !important; }
         }
       `}</style>
     </section>

@@ -12,7 +12,7 @@ const categories = [
 
 export default function CategoryGrid() {
   return (
-    <section id="coleccion" style={{ backgroundColor: "var(--white)", padding: "5rem 0" }}>
+    <section id="coleccion" style={{ backgroundColor: "var(--white)", padding: "5rem 0" }} className="cat-section">
 
       {/* Section header — LV style */}
       <div style={{ textAlign: "center", marginBottom: "3rem", padding: "0 2rem" }}>
@@ -63,6 +63,9 @@ export default function CategoryGrid() {
         .cat-img:hover { transform: scale(1.04) !important; }
         @media (max-width: 768px) { .cat-grid { grid-template-columns: repeat(2,1fr) !important; } }
         @media (max-width: 480px) { .cat-grid { grid-template-columns: 1fr !important; } }
+        /* Reducir padding vertical en mobile para evitar espacio blanco excesivo */
+        @media (max-width: 768px) { .cat-section { padding: 3rem 0 !important; } }
+        @media (max-width: 480px) { .cat-section { padding: 2rem 0 !important; } }
       `}</style>
     </section>
   );
