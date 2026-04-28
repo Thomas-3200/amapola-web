@@ -148,26 +148,23 @@ export default function Header() {
             textDecoration: "none",
             position: "absolute",
             left: "50%",
-            transform: "translateX(-50%)",
-            padding: "0 0.5rem",
+            top: "50%",
+            transform: "translateX(-50%) translateY(-50%)",
             backgroundColor: "var(--white)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            padding: "0 0.25rem",
           }}
         >
           {!logoError ? (
             <Image
               src="/images/brand/logo.png"
               alt="Amapola"
-              width={130}
-              height={56}
+              width={112}
+              height={48}
               priority
-              style={{
-                objectFit: "contain",
-                display: "block",
-                mixBlendMode: "multiply",   // funde el fondo blanco/mármol con el header
-              }}
+              style={{ objectFit: "contain", display: "block" }}
               onError={() => setLogoError(true)}
             />
           ) : (
