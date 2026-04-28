@@ -21,9 +21,9 @@ export default function ContactSection() {
           {/* Left: contact info */}
           <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
             {[
-              { icon: <MapPin size={18} strokeWidth={1.5} />, title: "Local", lines: ["Av. Mitre 4553", "Villa Domínico, Avellaneda (CP 1874)"] },
+              { icon: <MapPin size={18} strokeWidth={1.5} />, title: "Locales", lines: ["Av. Mitre 4553 — Local 29 y Local 47", "Villa Domínico, Avellaneda (CP 1874)"] },
               { icon: <Phone size={18} strokeWidth={1.5} />, title: "Teléfono", lines: ["+54 9 11 6667-6467"] },
-              { icon: <Clock size={18} strokeWidth={1.5} />, title: "Horarios", lines: ["Lun–Sáb 10:00–19:00 hs"] },
+              { icon: <Clock size={18} strokeWidth={1.5} />, title: "Horarios", lines: ["Viernes, Sábados, Domingos y Feriados", "10:00–20:00 hs"] },
             ].map((item, i) => (
               <div key={i} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                 <div style={{ color: "rgba(255,255,255,0.4)", marginTop: "2px", flexShrink: 0 }}>{item.icon}</div>
